@@ -48,5 +48,27 @@ class UserAdmin(admin.ModelAdmin):
     def delete_users(self, request, queryset):
         queryset.update(is_deleted=True)
     delete_users.short_description = "Soft delete selected users"
-
-admin.site.register(CustomUser, UserAdmin)
+    
+class SampleUserAdmin(admin.ModelAdmin):
+    list_display = ("first_name", "last_name", "phone_number", "email", "is_active", "is_admin", "is_deleted")
+    list_editable = ("phone_number", "is_active", "is_admin", "is_deleted")
+    list_filter = ("is_active", "is_admin", "is_deleted", "date_joined")
+    search_fields = ("first_name", "last_name", "phone_number", "email")
+    fieldsets = (
+        (None, {
+            'fields': ('email', 'username', 'password')
+        }),
+        ('Personal Info', {
+            'fields': ('first_name', 'last_name', 'phone_number', 'profile_picture')
+        }),
+        ('Permissions', {
+            'fields': ('is_active', 'is_admin', 'is_deleted', 'is_staff', 'is_superuser')
+        }),
+        ('Important Dates', {
+            'fields': ('date_joined', 'last_login')
+        }),
+    )
+    ordering = ("first_name", "last_name")
+    list_per_page = 50
+    
+admin.site.register(CustomUser, SampleUserAdmin)

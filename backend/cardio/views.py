@@ -9,6 +9,7 @@ from cardio.models import Predictions
 from users.utils import auth_user, jwt_decode
 
 import json
+import requests
 
 from joblib import load
 
@@ -57,3 +58,30 @@ def predict(request):
     except Exception as e:
         return JsonResponse({'success': False, 'message': f"Error: {str(e)}"}, status=500)
         
+@require_http_methods(["POST"])
+@csrf_exempt
+def find_nearby_hospitals(request):
+    try:
+        bearer = request.headers.get('Authorization')
+        if not bearer:
+            return JsonResponse({'success': False, 'message': 'Authentication header is required.'}, status=401)
+
+        token = bearer.split()[1]
+        if not auth_user(token):
+            return JsonResponse({'success': False, 'message': 'Invalid token data.'}, status=401)
+
+        data = json.loads(request.body)
+        latitude = data.get('latitude')
+        longitude = data.get('longitude')
+
+        if latitude is None or longitude is None:
+            return JsonResponse({'success': False, 'message': 'Latitude and Longitude are required.'}, status=400)
+
+        google_maps_api_key = 'AIzaSyDIIydfxdqoslmjtw_tdYjO4Fo4zRp1DwE'
+        url = f'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={latitude},{longitude}&radius=5000&type=hospital&keyword=heart&key={google_maps_api_key}'
+        response = requests.get(url)
+        hospitals = response.json().get('results', [])
+
+        return JsonResponse({'success': True, 'hospitals': hospitals}, status=200)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': f"Error: {str(e)}"}, status=500)

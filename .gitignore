@@ -1,1 +1,8 @@
 /venv
+*.sqlite3
+*.log
+local_settings.py
+db.sqlite3
+staticfiles/
+*.pycache/
+*.pyc
