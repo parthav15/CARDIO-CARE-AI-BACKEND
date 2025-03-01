@@ -13,7 +13,10 @@ import requests
 
 from joblib import load
 
-classifier = load('C:\\Users\\DHRUV\\Desktop\\django-projects\\CARDIO CARE AI BACKEND\\backend\\data_notebook\\classifier.joblib')
+from pathlib import Path
+from django.conf import settings
+
+classifier = load(Path(settings.BASE_DIR) / 'data_notebook' / 'classifier.joblib')
 
 @require_http_methods(["POST"])
 @csrf_exempt
